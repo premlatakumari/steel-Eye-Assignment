@@ -1,0 +1,98 @@
+Question1.Explain what the simple List component does.
+ Ans. In order to keep React list components tidy, We can extract them to standalone component that only care about their concerns. For instance, the List component (index, isSelected, onClickHandler) makes sure to map over the array to render a list of ListItem components for each item as child component. 
+     The List components offer an API to the outside. This way the Application components can pass the array as list props to the List components. One little trick for conditional rendering. If you don't know whether the incoming list is null or undefined, default to an empty list itself.
+      The List and List-Item components are used so often in React applications, that they can be taken as list template or boilerplate, because often you just copy and paste the same implementation for a simple list over to our code. So keeping this structure for a list component(Index,  in mind, isSelected, onClickHandler) do not harm.
+      It doesn't work any different for complex objects in JavaScript arrays. You iterate over the list with the map method again and output for each list item your HTML elements.
+
+
+Question 2. What problems / warnings are there with code?
+problems in codes.
+[plugin:vite:import-analysis] Failed to resolve import "prop-types" from "src/App.jsx". Does the file exist?
+/home/damner/code/src/App.jsx:2:0
+15 |  var _jsxFileName = "/home/damner/code/src/App.jsx", _s = $RefreshSig$();
+16 |  import React, { useState, useEffect, memo } from "react";
+17 |  import PropTypes from "prop-types";
+   |                         ^
+18 |  import { jsxDEV as _jsxDEV } from "react/jsx-dev-runtime";
+19 |  const WrappedSingleListItem = ({
+    at formatError (file:///home/damner/code/node_modules/vite/dist/node/chunks/dep-561c5231.js:35003:46)
+    at TransformContext.error (file:///home/damner/code/node_modules/vite/dist/node/chunks/dep-561c5231.js:34999:19)
+    at normalizeUrl (file:///home/damner/code/node_modules/vite/dist/node/chunks/dep-561c5231.js:40109:33)
+    at processTicksAndRejections (internal/process/task_queues.js:95:5)
+    at async TransformContext.transform (file:///home/damner/code/node_modules/vite/dist/node/chunks/dep-561c5231.js:40243:47)
+    at async Object.transform (file:///home/damner/code/node_modules/vite/dist/node/chunks/dep-561c5231.js:35252:30)
+    at async loadAndTransform (file:///home/damner/code/node_modules/vite/dist/node/chunks/dep-561c5231.js:39740
+
+
+3.Please fix, optimize, and/or modify the component as much as you think is necessary.
+Ans. the correct code for question.
+import React, { useState, useEffect, memo } from 'react';
+import PropTypes from 'prop-types';
+
+// Single List Item
+const WrappedSingleListItem = ({
+  index,
+  isSelected,
+  onClickHandler,
+  text,
+}) => {
+  return (
+    <li
+      style={{ backgroundColor: isSelected ? 'green' : 'red'}}
+      function=onClick={onClickHandler(index)}
+    >
+      {text}
+    </li>
+  );
+};
+
+WrappedSingleListItem.propTypes = {
+  index: PropTypes.number,
+  isSelected: PropTypes.bool,
+  onClickHandler: PropTypes.func.isRequired,
+  text: PropTypes.string.isRequired,
+};
+
+const SingleListItem = memo(WrappedSingleListItem);
+
+// List Component
+const WrappedListComponent = ({
+  items,
+}) => {
+  const [setSelectedIndex, selectedIndex] = useState();
+
+  useEffect(() => {
+    setSelectedIndex(null);
+  }, [items]);
+
+  const handleClick = index => {
+    setSelectedIndex(index);
+  };
+
+  return (
+    <ul style={{ textAlign: 'left' }}>
+      {items.map((item, index) => (
+        <SingleListItem
+          onClickHandler={() => handleClick(index)}
+          text={item.text}
+          index={index}
+          isSelected={selectedIndex}
+        />
+      ))}
+    </ul>
+  )
+};
+
+WrappedListComponent.propTypes = {
+  items: PropTypes.array(PropTypes.shapeOf({
+    text: PropTypes.string.isRequired,
+  })),
+};
+
+WrappedListComponent.defaultProps = {
+  items: null,
+};
+
+const List = memo(WrappedListComponent);
+
+export default List;
